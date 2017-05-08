@@ -1,17 +1,45 @@
-#!/bin/bash
-if [[ $# -ne 2 ]]; then
-	echo "Usage: text \"phone number(s)\" \"message\""
-	exit 1
-fi
+#!/usr/bin/python
+import sys
+import requests
+from subprocess import check_output as execute
 
-number=`contacts -SHf '%p' $1 2> /dev/null`
-numberOfNumbers=`echo "$number" | wc -l`
-numberOfNumbers="$(echo -e "${numberOfNumbers}" | sed -e 's/^[[:space:]]*//')"
-if [[ numberOfNumbers -ne 1 ]]; then
-	echo "$numberOfNumbers contacts matched your query. Please try again."
-	exit 1
-fi
+KEY = 'key=***REMOVED***'
+HEADERS = {'Content-Type': 'application/json', 'Authorization': KEY}
+URL = 'https://fcm.googleapis.com/fcm/send'
+TOKEN = '***REMOVED***'
 
-curl -H "Content-Type:application/json" -H "Authorization:key=***REMOVED***" "https://fcm.googleapis.com/fcm/send" -d "{\"to\":\"***REMOVED***\",\"priority\":\"high\",\"data\":{\"number\":\"$number\",\"message\":\"$2\"}}"
-echo
 
+def send_message(number, message):
+    data = {
+      'to': TOKEN,
+      'priority': 'high',
+      'data': {
+        'number': number,
+        'message': message
+       }
+    }
+    response = requests.post(URL, json=data, headers=HEADERS)
+    print(response.text)
+
+
+if len(sys.argv) < 3:
+    print("Usage: text 'contact' 'message'")
+    sys.exit()
+name = sys.argv[1].split(' ')
+output = execute("contacts -SHf '%n:%mp' {} 2> /dev/null".format(name[0]), shell=True)
+list = [tuple(line.split(':')) for line in output.strip().split('\n')]
+# This will usually only iterate zero or one times but yolo
+for nth_name in name[1:]:
+    list = [x for x in list if nth_name.lower() in x[0].lower()]
+if not list:
+    print("No contacts found.")
+elif len(list) > 1:
+    print("Please choose a number to specify")
+    for index, value in enumerate(list):
+        print("({}) {}".format(index, value[0]))
+    index = input()
+    while not isinstance(index, int) or index >= len(list):
+        index = input("Please enter a valid input\n")
+    send_message(list[index][1], sys.argv[2])
+else:
+    send_message(list[0][1], sys.argv[2])

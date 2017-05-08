@@ -1,4 +1,6 @@
 #!/bin/bash
-cd ~/workspace/ticketToRide
+cd ~/workspace/aticketToRide
 gradle clean
 gradle serverJar && scp server/build/libs/server-all.jar ec2:ticketToRide
+gradle build -p sql && scp sql/build/libs/sql.jar ec2:ticketToRide
+gradle build -p nosql && scp nosql/build/libs/nosql.jar ec2:ticketToRide
