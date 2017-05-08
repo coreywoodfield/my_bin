@@ -1,17 +1,16 @@
 #!/usr/bin/python
 import sys
 import requests
+import os
 from subprocess import check_output as execute
 
-KEY = 'key=***REMOVED***'
-HEADERS = {'Content-Type': 'application/json', 'Authorization': KEY}
+HEADERS = {'Content-Type': 'application/json', 'Authorization': 'key={}'.format(os.environ['STEEL_SERVER_KEY'])}
 URL = 'https://fcm.googleapis.com/fcm/send'
-TOKEN = '***REMOVED***'
 
 
 def send_message(number, message):
     data = {
-      'to': TOKEN,
+      'to': os.environ['STEEL_TOKEN'],
       'priority': 'high',
       'data': {
         'number': number,
