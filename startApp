@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Convenience script to login to an app made by classmates for testing
 adb shell monkey -p deltamonstarz.tickettoride -c android.intent.category.LAUNCHER 1
 adb shell input text '35.161.140.149'
 adb shell input keyevent 61

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Delete all local branches tracking a remote branch which has been merged into dev (or specified branch)
 if [ $# -eq 0 ]; then
 	BASE=origin/dev
 else

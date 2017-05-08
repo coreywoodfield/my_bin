@@ -1,4 +1,6 @@
 #!/bin/bash
+# compile a server jar and push it up to the remote server
+# made to simplify the workflow for a class project, without needing to set up cicd
 cd ~/workspace/aticketToRide
 gradle clean
 gradle serverJar && scp server/build/libs/server-all.jar ec2:ticketToRide

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Send texts through my phone using a script
 if [[ $# -ne 2 ]]; then
 	echo "Usage: text \"contact(s)\" \"message\""
 	exit 1

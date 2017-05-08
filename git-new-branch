@@ -1,3 +1,4 @@
 #!/bin/bash
+# Checkout a new branch from dev, and push it upstream in the background
 git checkout -b $@ origin/dev --no-track
 git push -u -q > /dev/null &
