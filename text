@@ -8,7 +8,7 @@ HEADERS = {'Content-Type': 'application/json', 'Authorization': 'key={}'.format(
 URL = 'https://fcm.googleapis.com/fcm/send'
 
 
-def send_message(number, message):
+def send_to_number(number, message):
     data = {
       'to': os.environ['STEEL_TOKEN'],
       'priority': 'high',
@@ -21,24 +21,29 @@ def send_message(number, message):
     print(response.text)
 
 
-if len(sys.argv) < 3:
-    print("Usage: text 'contact' 'message'")
-    sys.exit()
-name = sys.argv[1].split(' ')
-output = execute("contacts -SHf '%n:%mp' {} 2> /dev/null".format(name[0]), shell=True)
-list = [tuple(line.split(':')) for line in output.strip().split('\n')]
-# This will usually only iterate zero or one times but yolo
-for nth_name in name[1:]:
-    list = [x for x in list if nth_name.lower() in x[0].lower()]
-if not list:
-    print("No contacts found.")
-elif len(list) > 1:
-    print("Please choose a number to specify")
-    for index, value in enumerate(list):
-        print("({}) {}".format(index, value[0]))
-    index = input()
-    while not isinstance(index, int) or index >= len(list):
-        index = input("Please enter a valid input\n")
-    send_message(list[index][1], sys.argv[2])
-else:
-    send_message(list[0][1], sys.argv[2])
+def send_to_name(name, message):
+    name = name.split(' ')
+    contacts = execute("contacts -SHf '%n:%mp' {} 2> /dev/null".format(name[0]), shell=True)
+    list = [tuple(line.split(':')) for line in contacts.strip().splitlines()]
+    # this loop will usually only run zero or one times, but it doesn't hurt to be safe
+    for nth_name in name[1:]:
+        list = [x for x in list if nth_name.lower() in x[0].lower()]
+    if not list:
+        print('No contacts found.')
+    elif len(list) > 1:
+        print("Please choose a number to specify who to text")
+        for index, value in enumerate(list):
+            print("({}) {}".format(index, value[0]))
+        index = input()
+        while not isinstance(index, int) or index >= len(list):
+            index = input('Please enter a valid input\n')
+        send_to_number(list[index][1], message)
+    else:
+        send_to_number(list[0][1], message)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print("Usage: text contact message")
+        sys.exit()
+    send_to_name(sys.argv[1], sys.argv[2])
